@@ -22,12 +22,17 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(config => {
-  if (process.env.NODE_ENV == 'development') {
-    if (config.url == '/api/cookie/list' || config.url == '/api/cookie/add' || config.url == '/api/mvToken/list' || config.url == '/api/mvToken/add') {
-      config.baseURL = 'http://144.34.169.199:8080'
-    } else {
-      config.baseURL = process.env.VUE_APP_BASE_API
-    }
+  const isDev = process.env.NODE_ENV === 'development';
+  const isProd = process.env.NODE_ENV === 'production';
+
+  const apiUrls = ['/api/cookie/list', '/api/cookie/add', '/api/mvToken/list', '/api/mvToken/add'];
+
+  if (isDev) {
+    config.baseURL = apiUrls.includes(config.url) ? 'http://144.34.169.199:8080' : process.env.VUE_APP_BASE_API;
+  }
+
+  if (isProd) {
+    config.baseURL = apiUrls.includes(config.url) ? '/ai' : process.env.VUE_APP_BASE_API;
   }
   // 是否需要设置 token
   const isToken = (config.headers || {}).isToken === false
